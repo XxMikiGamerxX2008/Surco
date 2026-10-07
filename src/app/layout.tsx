@@ -44,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       data-scroll-behavior="smooth"
     >
       <body className="grain flex min-h-full flex-col">
+        <div className="palette-veil" aria-hidden />
         <AccessGate />
         <Navbar />
         <SectionObserver />

@@ -58,13 +58,14 @@ export function AlbumCard({ section, index, withTransition = true }: AlbumCardPr
 
         <div className="mt-4 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="eyebrow mb-1.5 text-accent">{artist.name}</p>
+            <p className="mb-1 font-display text-[0.8rem] font-medium text-accent">
+              {artist.name}
+            </p>
             <h3 className="font-display truncate text-base font-semibold tracking-tight text-fg">
               {album.title}
             </h3>
-            <p className="mt-1 text-xs text-fg-muted">
-              {album.year} · {genres[0]}
-            </p>
+            <p className="mt-1 text-xs text-fg-muted">{album.year}</p>
+            <p className="mt-0.5 text-xs text-fg-muted/80">{genres[0]}</p>
           </div>
           <div className="flex flex-col items-end gap-2">
             <span className="font-display text-sm font-bold text-accent">

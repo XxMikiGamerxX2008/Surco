@@ -56,7 +56,12 @@ export function AccessGate() {
             </div>
 
             <div className="space-y-3">
-              <p className="eyebrow text-accent">Experiencia inmersiva</p>
+              <span className="groove-rule mb-5 text-accent" aria-hidden>
+                <span className="tick" />
+                <span className="tick" />
+                <span className="tick" />
+                <span className="tick" />
+              </span>
               <h1 className="display-lg text-brand-bone">Entrá al surco</h1>
               <p className="text-sm leading-relaxed text-brand-bone/65">
                 Cada álbum pinta la interfaz con su color y suena de fondo. Activá el

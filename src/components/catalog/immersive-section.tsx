@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ViewTransition } from "react";
-import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import { formatPrice } from "@/lib/catalog";
 import type { Section } from "@/types/catalog";
@@ -19,6 +18,8 @@ interface ImmersiveSectionProps {
  * Sección inmersiva full-screen: la portada es el fondo,
  * la paleta del álbum colorea la UI local y los datos `data-section-id`
  * alimentan al SectionObserver (color raíz + crossfade de audio).
+ * Sin animaciones de entrada por sección: el movimiento que importa es el
+ * morph de paleta y el cambio de audio mientras el usuario se desplaza.
  */
 export function ImmersiveSection({ section, index, priority = false }: ImmersiveSectionProps) {
   const { album, artist, palette, art, audio, genres, fx } = section;
@@ -68,7 +69,7 @@ export function ImmersiveSection({ section, index, priority = false }: Immersive
       )}
       {fx.ornament > 0.5 && <div className="ornament-frame" aria-hidden />}
 
-      {/* número de sección */}
+      {/* índice editorial (la colección sí es una secuencia 01–04) */}
       <span
         className="pointer-events-none absolute right-6 top-24 select-none font-display text-[clamp(4rem,12vw,10rem)] font-bold leading-none opacity-[0.08] sm:right-10"
         style={{ color: palette.textContrast }}
@@ -78,40 +79,39 @@ export function ImmersiveSection({ section, index, priority = false }: Immersive
       </span>
 
       {/* contenido */}
-      <motion.div
-        className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-36 sm:px-10"
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.35 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      >
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-36 sm:px-10">
         <div className="max-w-3xl space-y-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="eyebrow" style={{ color: palette.accent }}>
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="groove-rule" style={{ color: palette.accent }} aria-hidden>
+              <span className="tick" />
+              <span className="tick" />
+              <span className="tick" />
+              <span className="tick" />
+            </span>
+            <span className="font-display text-sm font-medium" style={{ color: palette.textContrast, opacity: 0.85 }}>
               {palette.mood}
             </span>
-            <span className="h-px w-12" style={{ background: palette.accent, opacity: 0.5 }} />
-            <span className="eyebrow opacity-60" style={{ color: palette.textContrast }}>
+            <span className="font-display text-sm font-medium" style={{ color: palette.accent }}>
               {album.year}
             </span>
           </div>
 
           <div>
-            <p className="font-display text-lg font-medium opacity-75" style={{ color: palette.textContrast }}>
+            <p className="font-display text-lg font-medium opacity-80" style={{ color: palette.textContrast }}>
               {artist.name}
             </p>
-            <h2 className="display-xl mt-1" style={{ color: palette.textContrast }}>
+            <h2 className="display-xl mt-2" style={{ color: palette.textContrast }}>
               {album.title}
             </h2>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             {genres.map((g) => (
               <span
                 key={g}
-                className="rounded-full border px-3 py-1 font-display text-[0.68rem] uppercase tracking-[0.14em]"
+                className="rounded-full border px-3 py-1 font-display text-xs font-medium tracking-wide"
                 style={{
-                  borderColor: `color-mix(in oklab, ${palette.textContrast} 30%, transparent)`,
+                  borderColor: `color-mix(in oklab, ${palette.textContrast} 28%, transparent)`,
                   color: palette.textContrast,
                 }}
               >
@@ -121,7 +121,7 @@ export function ImmersiveSection({ section, index, priority = false }: Immersive
           </div>
 
           {/* chip "sonando ahora" */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 pt-1">
             {audio.src ? (
               <span className="flex h-3.5 items-end gap-[2px]" aria-hidden>
                 <span className="eq-bar" style={{ height: "100%", background: palette.accent }} />
@@ -132,16 +132,18 @@ export function ImmersiveSection({ section, index, priority = false }: Immersive
             ) : (
               <span className="h-2 w-2 rounded-full" style={{ background: palette.accent }} />
             )}
-            <span className="font-display text-xs tracking-wide" style={{ color: palette.textContrast, opacity: 0.8 }}>
-              {audio.src ? `Sonando: ${audio.trackTitle}` : `Pista: ${audio.trackTitle} · asset pendiente`}
+            <span className="font-display text-sm tracking-wide" style={{ color: palette.textContrast, opacity: 0.85 }}>
+              {audio.src
+                ? `Sonando: ${audio.trackTitle}`
+                : `Pista: ${audio.trackTitle} — asset pendiente`}
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          <div className="flex flex-wrap items-center gap-5 pt-3">
             <Link href={`/album/${album.slug}`} transitionTypes={["nav-forward"]}>
               <ViewTransition name={`album-cover-${album.slug}`} share="morph" default="none">
                 <Button size="lg" style={{ background: palette.accent, color: palette.surface }}>
-                  Ver ficha · {formatPrice(album.precio)}
+                  Ver ficha
                   <ArrowUpRight size={18} />
                 </Button>
               </ViewTransition>
@@ -152,11 +154,11 @@ export function ImmersiveSection({ section, index, priority = false }: Immersive
               className="font-display text-sm underline-offset-8 transition-all hover:underline"
               style={{ color: palette.textContrast, opacity: 0.85 }}
             >
-              Explorar catálogo
+              {formatPrice(album.precio)}
             </Link>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* borde inferior */}
       <div

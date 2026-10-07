@@ -10,7 +10,12 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 pb-24 pt-36 sm:px-10">
       <header className="mb-12">
-        <p className="eyebrow mb-4 text-accent">Carrito</p>
+        <span className="groove-rule mb-6 text-accent" aria-hidden>
+          <span className="tick" />
+          <span className="tick" />
+          <span className="tick" />
+          <span className="tick" />
+        </span>
         <h1 className="display-lg">Tu selección</h1>
       </header>
       <CartView />
