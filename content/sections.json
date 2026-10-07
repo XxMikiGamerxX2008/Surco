@@ -35,8 +35,8 @@
       },
       "audio": {
         "trackTitle": "Chihiro",
-        "src": null,
-        "license": "pending-asset",
+        "src": "/audio/billie-eilish/chihiro.mp3",
+        "license": "local-demo",
         "loop": true,
         "targetGainDb": -15
       },
