@@ -5,7 +5,8 @@ import { notFound } from "next/navigation";
 import { ViewTransition } from "react";
 import { ArrowLeft, Disc3 } from "lucide-react";
 import { sections, getSectionBySlug, formatPrice } from "@/lib/catalog";
-import { VinylPreview } from "@/components/product/vinyl-preview";
+import { PaletteBinder } from "@/components/effects/palette-binder";
+import { Vinyl3D } from "@/components/product/vinyl-3d";
 import { AddToCartButton } from "@/components/product/add-to-cart-button";
 import { PlayPreviewButton } from "@/components/product/play-preview-button";
 import { Badge } from "@/components/ui/badge";
@@ -48,9 +49,11 @@ export default async function AlbumPage(props: PageProps<"/album/[slug]">) {
 
   return (
     <article style={style} className="min-h-screen pb-24">
-      {/* fondo de ambiente del álbum */}
+      <PaletteBinder section={section} />
+
+      {/* fondo de ambiente del álbum (misma capa que el velo, DOM posterior ⇒ encima) */}
       <div
-        className="pointer-events-none fixed inset-0 -z-10"
+        className="pointer-events-none fixed inset-0 -z-1"
         style={{
           background: `radial-gradient(65% 50% at 75% 15%, color-mix(in oklab, ${palette.primary} 65%, transparent), transparent 70%), radial-gradient(45% 45% at 15% 85%, color-mix(in oklab, ${palette.accent} 18%, transparent), transparent 70%)`,
         }}
@@ -70,7 +73,7 @@ export default async function AlbumPage(props: PageProps<"/album/[slug]">) {
           {/* visual 3D */}
           <div className="lg:sticky lg:top-28">
             <ViewTransition name={`album-cover-${album.slug}`} share="morph" default="none">
-              <VinylPreview
+              <Vinyl3D
                 coverPath={section.art.coverPath}
                 accent={palette.accent}
                 primary={palette.primary}
@@ -88,7 +91,7 @@ export default async function AlbumPage(props: PageProps<"/album/[slug]">) {
             </div>
 
             <div>
-              <p className="eyebrow mb-2 text-accent">{artist.name}</p>
+              <p className="mb-2 font-display text-base font-medium text-accent">{artist.name}</p>
               <h1 className="display-lg">{album.title}</h1>
             </div>
 
@@ -139,7 +142,7 @@ export default async function AlbumPage(props: PageProps<"/album/[slug]">) {
                       className="h-10 w-full rounded-lg border border-line"
                       style={{ background: hex }}
                     />
-                    <p className="mt-1.5 truncate font-display text-[0.6rem] uppercase tracking-wider text-fg-muted">
+                    <p className="mt-1.5 truncate font-display text-[0.6rem] tracking-wide text-fg-muted">
                       {hex}
                     </p>
                   </div>
