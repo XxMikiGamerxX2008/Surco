@@ -3,34 +3,30 @@
 import { useEffect } from "react";
 import { sections } from "@/lib/catalog";
 import { ambientAudio } from "@/lib/audio/engine";
+import { morphPalette } from "@/lib/palette-morph";
 import { useAudioStore } from "@/stores/audio.store";
 import type { Section } from "@/types/catalog";
 
-const PALETTE_KEYS = [
-  "--album-primary",
-  "--album-secondary",
-  "--album-accent",
-  "--album-surface",
-  "--album-surface-2",
-  "--album-text",
-] as const;
-
-function applyPalette(section: Section) {
-  const root = document.documentElement;
-  root.style.setProperty("--album-primary", section.palette.primary);
-  root.style.setProperty("--album-secondary", section.palette.secondary);
-  root.style.setProperty("--album-accent", section.palette.accent);
-  root.style.setProperty("--album-surface", section.palette.surface);
-  root.style.setProperty("--album-surface-2", section.palette.surface2);
-  root.style.setProperty("--album-text", section.palette.textContrast);
-  root.dataset.section = section.id;
-  root.dataset.mood = section.palette.mood;
+function paletteToMorph(section: Section) {
+  return {
+    "--album-primary": section.palette.primary,
+    "--album-secondary": section.palette.secondary,
+    "--album-accent": section.palette.accent,
+    "--album-surface": section.palette.surface,
+    "--album-surface-2": section.palette.surface2,
+    "--album-text": section.palette.textContrast,
+  };
 }
 
 /**
- * Observa las secciones inmersivas ([data-section-id]):
- *  1. vuelca la paleta del álbum activo a las CSS variables raíz (transición @property),
+ * Observa las secciones inmersivas ([data-section-id]) y decide la activa
+ * por centro más cercano al centro del viewport.
+ * Decisions:
+ *  1. morph-ea la paleta del álbum activo a las CSS variables raíz
+ *     (lerp JS en OKLab, sin depender de transiciones CSS congeladas),
  *  2. pide al motor de audio el crossfade a la pista de esa sección.
+ * Este método es determinista (a diferencia de sort por intersectionRatio,
+ * que se quedaba congelado en saltos de scroll instantáneos).
  */
 export function SectionObserver() {
   useEffect(() => {
@@ -47,7 +43,10 @@ export function SectionObserver() {
       const section = sections.find((s) => s.id === id);
       if (!section) return;
 
-      applyPalette(section);
+      morphPalette(paletteToMorph(section), {
+        section: section.id,
+        mood: section.palette.mood,
+      });
 
       const store = useAudioStore.getState();
       if (store.enabled && !store.muted) {
@@ -66,29 +65,37 @@ export function SectionObserver() {
       }
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible) activate(visible.target.getAttribute("data-section-id")!);
-      },
-      { threshold: [0.35, 0.6] },
-    );
+    const measure = () => {
+      const mid = window.innerHeight / 2;
+      let best: HTMLElement | null = null;
+      let bestDist = Infinity;
+      for (const n of nodes) {
+        const r = n.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) continue;
+        const dist = Math.abs(r.top + r.height / 2 - mid);
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = n;
+        }
+      }
+      if (best) activate(best.getAttribute("data-section-id")!);
+    };
 
-    nodes.forEach((n) => observer.observe(n));
+    const onScroll = () => measure();
 
-    // sección inicial visible al cargar (si hay alguna en viewport)
-    const initial = nodes.find((n) => {
-      const r = n.getBoundingClientRect();
-      return r.top < window.innerHeight * 0.6 && r.bottom > window.innerHeight * 0.4;
-    });
-    if (initial) activate(initial.getAttribute("data-section-id")!);
+    // sección inicial visible
+    measure();
+    const onLoad = () => measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("load", onLoad);
 
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("load", onLoad);
+    };
   }, []);
 
   return null;
 }
-
-export { PALETTE_KEYS };
