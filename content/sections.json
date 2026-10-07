@@ -1,0 +1,157 @@
+{
+  "site": {
+    "name": "SURCO",
+    "tagline": "Vinilos que pintan la interfaz",
+    "description": "Tienda inmersiva de vinilos y discos. Cada álbum define el color, la atmósfera y el sonido de la experiencia."
+  },
+  "sections": [
+    {
+      "id": "hit-me-hard-and-soft",
+      "order": 1,
+      "artist": { "name": "Billie Eilish", "slug": "billie-eilish" },
+      "album": {
+        "title": "HIT ME HARD AND SOFT",
+        "slug": "hit-me-hard-and-soft",
+        "year": 2024,
+        "formato": "Vinilo 12\" · 180g",
+        "precio": 34.99,
+        "stock": 12,
+        "destacado": true
+      },
+      "genres": ["Dark Pop", "Pop alternativo"],
+      "art": {
+        "coverPath": "/covers/hit-me-hard-and-soft.jpg",
+        "backgroundMode": "immersive-fullbleed",
+        "fx": ["caustics-subtle", "grain-fine"]
+      },
+      "palette": {
+        "primary": "#0B1E3A",
+        "secondary": "#123C6B",
+        "accent": "#22D3EE",
+        "surface": "#060D18",
+        "surface2": "#0E1B2E",
+        "textContrast": "#E8F4FF",
+        "mood": "oceánico-profundo"
+      },
+      "audio": {
+        "trackTitle": "Chihiro",
+        "src": null,
+        "license": "pending-asset",
+        "loop": true,
+        "targetGainDb": -15
+      },
+      "fx": { "glitch": 0, "noise": 0.06, "ornament": 0, "texture": "liquid" }
+    },
+    {
+      "id": "crystal-castles-iii",
+      "order": 2,
+      "artist": { "name": "Crystal Castles", "slug": "crystal-castles" },
+      "album": {
+        "title": "Crystal Castles (III)",
+        "slug": "crystal-castles-iii",
+        "year": 2012,
+        "formato": "Vinilo 12\" · Negro",
+        "precio": 29.99,
+        "stock": 8,
+        "destacado": true
+      },
+      "genres": ["Electrónica", "Chiptune", "Industrial"],
+      "art": {
+        "coverPath": "/covers/crystal-castles-iii.jpg",
+        "backgroundMode": "immersive-glitch",
+        "fx": ["rgb-split", "scanlines", "noise-aggressive"]
+      },
+      "palette": {
+        "primary": "#0A0A0A",
+        "secondary": "#2B2F33",
+        "accent": "#FFFFFF",
+        "surface": "#050505",
+        "surface2": "#14171A",
+        "textContrast": "#F2F2F2",
+        "mood": "monocromático-industrial"
+      },
+      "audio": {
+        "trackTitle": "Kept",
+        "src": "/audio/crystal-castles/kept.mp3",
+        "license": "local-demo",
+        "loop": true,
+        "targetGainDb": -16
+      },
+      "fx": { "glitch": 0.8, "noise": 0.25, "ornament": 0, "texture": "static" }
+    },
+    {
+      "id": "merveilles",
+      "order": 3,
+      "artist": { "name": "Malice Mizer", "slug": "malice-mizer" },
+      "album": {
+        "title": "Merveilles",
+        "slug": "merveilles",
+        "year": 1998,
+        "formato": "Vinilo 12\" · Edición ornamental",
+        "precio": 39.99,
+        "stock": 5,
+        "destacado": true
+      },
+      "genres": ["Visual Kei", "Rock gótico"],
+      "art": {
+        "coverPath": "/covers/merveilles.jpg",
+        "backgroundMode": "immersive-baroque",
+        "fx": ["vignette-heavy", "gold-ornament-frame", "film-grain"]
+      },
+      "palette": {
+        "primary": "#7A1220",
+        "secondary": "#C9A227",
+        "accent": "#E8C97A",
+        "surface": "#12070A",
+        "surface2": "#241016",
+        "textContrast": "#F5E9DA",
+        "mood": "carmesí-barroco"
+      },
+      "audio": {
+        "trackTitle": "Au revoir",
+        "src": "/audio/malice-mizer/au-revoir.mp3",
+        "license": "local-demo",
+        "loop": true,
+        "targetGainDb": -15
+      },
+      "fx": { "glitch": 0, "noise": 0.08, "ornament": 0.9, "texture": "velvet" }
+    },
+    {
+      "id": "igor",
+      "order": 4,
+      "artist": { "name": "Tyler, the Creator", "slug": "tyler-the-creator" },
+      "album": {
+        "title": "IGOR",
+        "slug": "igor",
+        "year": 2019,
+        "formato": "Vinilo 12\" · Rosa pastel",
+        "precio": 32.99,
+        "stock": 15,
+        "destacado": true
+      },
+      "genres": ["Hip-hop", "R&B", "Soul"],
+      "art": {
+        "coverPath": "/covers/igor.jpg",
+        "backgroundMode": "immersive-portrait",
+        "fx": ["soft-bloom", "grain-fine"]
+      },
+      "palette": {
+        "primary": "#F2AFC5",
+        "secondary": "#111111",
+        "accent": "#FF7BAC",
+        "surface": "#F7EFE6",
+        "surface2": "#FBE7EE",
+        "textContrast": "#0A0A0A",
+        "mood": "rosa-pastel-protagónico"
+      },
+      "audio": {
+        "trackTitle": "Boyfriend",
+        "src": "/audio/igor/boyfriend.mp3",
+        "license": "local-demo",
+        "loop": true,
+        "targetGainDb": -15
+      },
+      "fx": { "glitch": 0, "noise": 0.05, "ornament": 0, "texture": "matte" }
+    }
+  ]
+}
