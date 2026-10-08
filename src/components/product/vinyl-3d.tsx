@@ -7,10 +7,11 @@ import * as THREE from "three";
 import { VinylPreview } from "@/components/product/vinyl-preview";
 
 /**
- * Disco 3D girando (React Three Fiber + drei) para la ficha de álbum.
+ * Portada + vinilo 3D girando (React Three Fiber + drei) para la ficha.
  *
- * - el vinilo gira en loop sobre su eje (1 rev ≈ 5.7s), flotando sobre el plato;
- * - la etiqueta central usa la portada real del álbum (TextureLoader local);
+ * - la funda (portada real del álbum) se apoya a la izquierda;
+ * - un vinilo negro con surcos gira AL LADO de la portada, como en un local;
+ * - la etiqueta es un círculo de acento con agujero (el arte va en la funda);
  * - inclinación con parallax del puntero (arrastrar para mirar alrededor);
  * - respeta prefers-reduced-motion: sin giro ni parallax;
  * - DPR limitado a [1,2] y un solo Canvas: barato para gama media.
@@ -76,6 +77,18 @@ function makeGroovesTexture(): THREE.CanvasTexture {
   ctx.fillStyle = gloss;
   ctx.fillRect(0, 0, size, size);
 
+  // arcos asimétricos: al girar el disco, algo se mueve en la superficie
+  ctx.strokeStyle = "rgba(255,255,255,0.09)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size * 0.32, Math.PI * 0.2, Math.PI * 0.95);
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,0.05)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(size / 2, size / 2, size * 0.55, Math.PI * 1.1, Math.PI * 1.8);
+  ctx.stroke();
+
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
@@ -97,7 +110,7 @@ function VinylScene({
   });
 
   const grooves = useMemo(() => makeGroovesTexture(), []);
-  const turntable = useRef<THREE.Group>(null);
+  const stage = useRef<THREE.Group>(null);
   const record = useRef<THREE.Group>(null);
   const reduceMotion = useMemo(
     () =>
@@ -109,68 +122,63 @@ function VinylScene({
   useFrame((_, delta) => {
     const rec = record.current;
     if (rec && !reduceMotion) {
-      // 1 rev ≈ 5.7s — giro constante del disco
-      rec.rotation.y += delta * 1.1;
+      // 1 rev ≈ 5.7s — el vinilo gira sobre su propio eje
+      rec.rotation.z += delta * 1.1;
     }
-    const tt = turntable.current;
-    if (tt && !reduceMotion) {
+    const st = stage.current;
+    if (st && !reduceMotion) {
       const k = Math.min(1, delta * 6);
-      tt.rotation.x += (tiltRef.current.x - tt.rotation.x) * k;
-      tt.rotation.y += (tiltRef.current.y - tt.rotation.y) * k;
+      st.rotation.x += (tiltRef.current.x - st.rotation.x) * k;
+      st.rotation.y += (tiltRef.current.y - st.rotation.y) * k;
     }
   });
 
   return (
-    <group ref={turntable}>
-      {/* plato */}
-      <mesh position={[0, -0.14, 0]}>
-        <cylinderGeometry args={[2.72, 2.72, 0.28, 96]} />
-        <meshStandardMaterial color="#0b0b0e" metalness={0.55} roughness={0.35} />
-      </mesh>
-      {/* eje */}
-      <mesh position={[0, 0.24, 0]}>
-        <cylinderGeometry args={[0.04, 0.04, 0.5, 24]} />
-        <meshStandardMaterial color="#17171a" metalness={0.8} roughness={0.3} />
-      </mesh>
-
-      {/* disco giratorio */}
-      <group ref={record}>
-        {/* canto */}
-        <mesh position={[0, 0.055, 0]}>
-          <cylinderGeometry args={[2.12, 2.12, 0.05, 96, 1, true]} />
-          <meshStandardMaterial color="#0d0d11" metalness={0.6} roughness={0.4} />
+    <group ref={stage}>
+      {/* PORTADA (funda) — apoyada a la izquierda */}
+      <group position={[-1.55, 0.45, 0]} rotation={[0.05, 0.28, -0.02]}>
+        {/* canto oscuro */}
+        <mesh position={[0, 0, -0.05]}>
+          <planeGeometry args={[2.14, 2.14]} />
+          <meshStandardMaterial color="#050507" roughness={0.9} />
         </mesh>
-        {/* surcos */}
-        <mesh position={[0, 0.062, 0]}>
-          <circleGeometry args={[2.12, 96]} />
-          <meshStandardMaterial map={grooves} roughness={0.58} metalness={0.28} />
-        </mesh>
-        {/* etiqueta con la portada */}
-        <mesh position={[0, 0.072, 0]}>
-          <circleGeometry args={[1.32, 64]} />
+        {/* arte */}
+        <mesh>
+          <planeGeometry args={[2.0, 2.0]} />
           <meshStandardMaterial map={cover} roughness={0.85} />
-        </mesh>
-        {/* anillo de acento */}
-        <mesh position={[0, 0.074, 0]}>
-          <ringGeometry args={[0.34, 0.6, 48]} />
-          <meshStandardMaterial color={accent} roughness={0.45} metalness={0.25} />
-        </mesh>
-        {/* agujero central */}
-        <mesh position={[0, 0.076, 0]}>
-          <circleGeometry args={[0.34, 32]} />
-          <meshStandardMaterial color="#050507" />
         </mesh>
       </group>
 
-      {/* funda atrás */}
-      <mesh position={[0, 0.55, -4.6]}>
-        <planeGeometry args={[6.1, 6.1]} />
-        <meshStandardMaterial color="#050507" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 0.55, -4.5]}>
-        <planeGeometry args={[5.8, 5.8]} />
-        <meshStandardMaterial map={cover} roughness={0.85} />
-      </mesh>
+      {/* VINILO girando al lado */}
+      <group position={[1.5, 0.5, 0]} rotation={[-0.35, 0.06, 0.04]}>
+        <group ref={record}>
+          {/* canto del disco */}
+          <mesh>
+            <cylinderGeometry args={[1.05, 1.05, 0.06, 96, 1, true]} />
+            <meshStandardMaterial color="#0d0d11" metalness={0.6} roughness={0.4} />
+          </mesh>
+          {/* cara con surcos */}
+          <mesh position={[0, 0, 0.005]}>
+            <circleGeometry args={[1.05, 96]} />
+            <meshStandardMaterial map={grooves} roughness={0.58} metalness={0.28} />
+          </mesh>
+          {/* etiqueta de acento */}
+          <mesh position={[0, 0, 0.012]}>
+            <circleGeometry args={[0.3, 48]} />
+            <meshStandardMaterial color={accent} roughness={0.45} metalness={0.25} />
+          </mesh>
+          {/* anillo del agujero */}
+          <mesh position={[0, 0, 0.016]}>
+            <ringGeometry args={[0.07, 0.12, 32]} />
+            <meshStandardMaterial color="#111114" />
+          </mesh>
+          {/* agujero central */}
+          <mesh position={[0, 0, 0.018]}>
+            <circleGeometry args={[0.07, 24]} />
+            <meshStandardMaterial color="#050507" />
+          </mesh>
+        </group>
+      </group>
     </group>
   );
 }
@@ -182,7 +190,7 @@ export function Vinyl3D({ coverPath, accent, primary, surface }: Vinyl3DProps) {
   useEffect(() => {
     // probe diferido: el primer render del cliente debe coincidir con el SSR
     // (fallback CSS), así que no sondeamos sincrónicamente dentro del effect.
-    // queMicrotask y no rAF: rAF se throttlea y puede no dispararse en tabs en
+    // queueMicrotask y no rAF: rAF se throttlea y puede no dispararse en tabs en
     // segundo plano, dejando el fallback CSS para siempre.
     queueMicrotask(() => setWebgl(probeWebGL()));
   }, []);
@@ -213,14 +221,14 @@ export function Vinyl3D({ coverPath, accent, primary, surface }: Vinyl3DProps) {
 
   return (
     <div
-      className="relative w-full max-w-md select-none"
+      className="relative w-full select-none"
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}
     >
-      <div className="relative aspect-square w-full touch-none">
+      <div className="relative aspect-[4/3] w-full touch-none">
         <Canvas
           dpr={[1, 2]}
-          camera={{ position: [0, 0.9, 8.4], fov: 34 }}
+          camera={{ position: [0, 0.5, 8.6], fov: 34 }}
           gl={{ antialias: true, alpha: true }}
           style={{ background: "transparent" }}
         >
@@ -231,17 +239,17 @@ export function Vinyl3D({ coverPath, accent, primary, surface }: Vinyl3DProps) {
             <VinylScene coverPath={coverPath} accent={accent} tiltRef={tiltRef} />
           </Suspense>
           <ContactShadows
-            position={[0, -2.7, 0]}
+            position={[0, -1.2, 0]}
             opacity={0.5}
-            scale={16}
+            scale={13}
             blur={2.6}
-            far={4.2}
+            far={3.4}
             color="#000000"
           />
         </Canvas>
       </div>
       <p className="pointer-events-none mt-4 text-center font-display text-xs tracking-[0.18em] uppercase text-fg-muted">
-        Disco 3D · mové el cursor para inclinar
+        Portada + vinilo 3D · mové el cursor para inclinar
       </p>
     </div>
   );
