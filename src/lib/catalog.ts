@@ -5,6 +5,20 @@ export const catalogContent = content as unknown as CatalogContent;
 
 export const site = catalogContent.site;
 
+/**
+ * Paleta inicial: escala de grises (blanco y negro).
+ * La home arranca B&N y el SectionObserver morphea al color del álbum activo
+ * cuando el usuario pasa el gate; luego sigue con cada álbum al scrollear.
+ */
+export const startPalette = {
+  primary: "#26282c",
+  secondary: "#3f434a",
+  accent: "#e4e6ea",
+  surface: "#0b0c0e",
+  surface2: "#17181c",
+  textContrast: "#eef0f4",
+} as const;
+
 export const sections: Section[] = [...catalogContent.sections].sort(
   (a, b) => a.order - b.order,
 );

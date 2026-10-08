@@ -25,8 +25,11 @@ function paletteToMorph(section: Section) {
  *  1. morph-ea la paleta del álbum activo a las CSS variables raíz
  *     (lerp JS en OKLab, sin depender de transiciones CSS congeladas),
  *  2. pide al motor de audio el crossfade a la pista de esa sección.
- * Este método es determinista (a diferencia de sort por intersectionRatio,
- * que se quedaba congelado en saltos de scroll instantáneos).
+ *
+ * Gate de B&N: la home arranca en blanco y negro (startPalette). Mientras el
+ * usuario no pasa el gate (`enabled === false`) no se morphea ninguna paleta:
+ * el primer morph recién ocurre al entrar, hacia el álbum visible (HMHAS), y
+ * desde ahí sigue consecutivamente con cada álbum al scrollear.
  */
 export function SectionObserver() {
   useEffect(() => {
@@ -43,12 +46,14 @@ export function SectionObserver() {
       const section = sections.find((s) => s.id === id);
       if (!section) return;
 
-      morphPalette(paletteToMorph(section), {
-        section: section.id,
-        mood: section.palette.mood,
-      });
-
       const store = useAudioStore.getState();
+      if (store.enabled) {
+        morphPalette(paletteToMorph(section), {
+          section: section.id,
+          mood: section.palette.mood,
+        });
+      }
+
       if (store.enabled && !store.muted) {
         void ambientAudio.setTrack(section.audio.src, section.audio.targetGainDb, {
           title: section.audio.trackTitle,
@@ -66,6 +71,9 @@ export function SectionObserver() {
     };
 
     const measure = () => {
+      // mientras no se pasa el gate, la pantalla queda en B&N
+      if (!useAudioStore.getState().enabled) return;
+
       const mid = window.innerHeight / 2;
       let best: HTMLElement | null = null;
       let bestDist = Infinity;
@@ -90,7 +98,14 @@ export function SectionObserver() {
     window.addEventListener("resize", onScroll, { passive: true });
     window.addEventListener("load", onLoad);
 
+    // al pasar el gate (enabled → true) morphea a la sección visible:
+    // la home pasa de B&N al color del primer álbum.
+    const unsubscribe = useAudioStore.subscribe((state, prev) => {
+      if (state.enabled && !prev.enabled) measure();
+    });
+
     return () => {
+      unsubscribe();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("load", onLoad);

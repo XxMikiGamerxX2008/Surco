@@ -10,32 +10,32 @@
 @property --album-primary {
   syntax: "<color>";
   inherits: true;
-  initial-value: #0b1e3a;
+  initial-value: #26282c;
 }
 @property --album-secondary {
   syntax: "<color>";
   inherits: true;
-  initial-value: #123c6b;
+  initial-value: #3f434a;
 }
 @property --album-accent {
   syntax: "<color>";
   inherits: true;
-  initial-value: #22d3ee;
+  initial-value: #e4e6ea;
 }
 @property --album-surface {
   syntax: "<color>";
   inherits: true;
-  initial-value: #060d18;
+  initial-value: #0b0c0e;
 }
 @property --album-surface-2 {
   syntax: "<color>";
   inherits: true;
-  initial-value: #0e1b2e;
+  initial-value: #17181c;
 }
 @property --album-text {
   syntax: "<color>";
   inherits: true;
-  initial-value: #e8f4ff;
+  initial-value: #eef0f4;
 }
 
 :root {

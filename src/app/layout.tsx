@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ViewTransition } from "react";
 import { displayFont, bodyFont } from "@/lib/fonts";
-import { site, sections } from "@/lib/catalog";
+import { site, startPalette } from "@/lib/catalog";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { CartDrawer } from "@/components/cart/cart-drawer";
@@ -9,7 +9,7 @@ import { AccessGate } from "@/components/audio/access-gate";
 import { SectionObserver } from "@/components/effects/section-observer";
 import "./globals.css";
 
-const initial = sections[0].palette;
+const initial = startPalette;
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://surco.example.com"),
